@@ -7,20 +7,22 @@ import model.Post;
 import model.Role;
 import model.Type_holiday;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
 public class Employe_HolidayView extends JFrame {
 
-    // le tableau de employe et cong�
     private JTabbedPane tabbedPane = new JTabbedPane();
 
-    // les tabs
     private JPanel employeTab = new JPanel();
     private JPanel holidayTab = new JPanel();
 
-    // les panels
     private JPanel Employepan = new JPanel();
     private JPanel Holidaypan = new JPanel();
     private JPanel Display_Table_employe = new JPanel();
@@ -66,13 +68,18 @@ public class Employe_HolidayView extends JFrame {
     private JButton updateButton_employe = new JButton("Modifier");
     private JButton deleteButton_employe = new JButton("Supprimer");
     private JButton displayButton_employe = new JButton("Afficher");
+    public JButton importButton_employe = new JButton("Importer");
+    public JButton exportButton_employe = new JButton("Exporter");
 
     // les boutons du cong�
     private JButton addButton_holiday = new JButton("Ajouter");
     private JButton updateButton_holiday = new JButton("Modifier");
     private JButton deleteButton_holiday = new JButton("Supprimer");
     private JButton displayButton_holiday = new JButton("Afficher");
-    
+    public JButton importButton_holiday = new JButton("Importer");
+    public JButton exportButton_holiday = new JButton("Exporter");
+
+
 
     // le tableau de l'employe
     JPanel pan0 = new JPanel(new BorderLayout());
@@ -112,6 +119,9 @@ public class Employe_HolidayView extends JFrame {
         panButton_employe.add(updateButton_employe);
         panButton_employe.add(deleteButton_employe);
         panButton_employe.add(displayButton_employe);
+        panButton_employe.add(importButton_employe);
+        panButton_employe.add(exportButton_employe);
+
 
         Employepan.add(Forme_employe, BorderLayout.NORTH);
         Forme_employe.setLayout(new GridLayout(7, 2, 10, 10));
@@ -157,11 +167,41 @@ public class Employe_HolidayView extends JFrame {
         panButton_holiday.add(updateButton_holiday);
         panButton_holiday.add(deleteButton_holiday);
         panButton_holiday.add(displayButton_holiday);
+        panButton_holiday.add(importButton_holiday);
+        panButton_holiday.add(exportButton_holiday);
+
+
+        
 
     // TabbedPane
         tabbedPane.addTab("Employe", employeTab);
         tabbedPane.addTab("Holiday", holidayTab);
-        
+        importButton_employe.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                importData(tableModel, fileChooser.getSelectedFile().getPath());
+            }
+        });
+
+        exportButton_employe.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                exportData(tableModel, fileChooser.getSelectedFile().getPath());
+            }
+        });
+        importButton_holiday.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                importData(tableModel1, fileChooser.getSelectedFile().getPath());
+            }
+        });
+
+        exportButton_holiday.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                exportData(tableModel1, fileChooser.getSelectedFile().getPath());
+            }
+        });
 
         remplaire_les_employes();
         setVisible(true);
@@ -317,4 +357,41 @@ public class Employe_HolidayView extends JFrame {
             return text_employe.getSelectedItem().equals("") || text_startDate.getText().equals("") || text_endDate.getText().equals("") || TypeComboBox.getSelectedItem().equals("");
         }
 
+  
+       
+
+    public void exportData(DefaultTableModel model, String fileName) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                writer.print(model.getColumnName(i));
+                if (i < model.getColumnCount() - 1) writer.print(",");
+            }
+            writer.println();
+            for (int i = 0; i < model.getRowCount(); i++) {
+                for (int j = 0; j < model.getColumnCount(); j++) {
+                    writer.print(model.getValueAt(i, j));
+                    if (j < model.getColumnCount() - 1) writer.print(",");
+                }
+                writer.println();
+            }
+            JOptionPane.showMessageDialog(this, "Données exportées avec succès.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erreur lors de l'exportation : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void importData(DefaultTableModel model, String fileName) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            model.setRowCount(0);
+            String line = reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                model.addRow(data);
+            }
+            JOptionPane.showMessageDialog(this, "Données importées avec succès.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erreur lors de l'importation : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }
+

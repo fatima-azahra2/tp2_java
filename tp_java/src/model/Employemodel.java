@@ -1,5 +1,6 @@
 package model;
 
+import java.io.File;
 import java.util.List;
 
 import DAO.EmployeDAOimpl;
@@ -65,4 +66,31 @@ public boolean addEmploye(int id ,String nom, String prenom, String email, Strin
         List<Employe> Employes = dao.display();
         return Employes;
     }
+private boolean checkFileExits(File file) {
+		
+		if(!file.exists()) {
+			throw new IllegalArgumentException ("le fichier n'existe pas "+file.getPath());
+			
+		}
+		return true;
+		
+	}
+private boolean checkIsFile(File file) {
+	
+	if(!file.isFile()) {
+		throw new IllegalArgumentException ("le chemin specifie nest pas un fichier "+file.getPath());
+		
+	}
+	return true;
+	
+}
+private boolean checkIsReadebal(File file) {
+	
+	if(!file.canRead()) {
+		throw new IllegalArgumentException ("le chemin specifie nest pas lisibles "+file.getPath());
+		
+	}
+	return true;
+	
+}
 }
